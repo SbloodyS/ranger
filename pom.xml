@@ -66,7 +66,7 @@
         </mailingList>
     </mailingLists>
     <properties>
-        <maven.version.required>3.6.3</maven.version.required>
+        <maven.version.required>3.6.2</maven.version.required>
         <java.version.required>1.8</java.version.required>
         <javac.source.version>1.8</javac.source.version>
         <javac.target.version>1.8</javac.target.version>
@@ -173,7 +173,7 @@
         <orc.core.version>1.6.7</orc.core.version>
         <owasp-java-html-sanitizer.version>r239</owasp-java-html-sanitizer.version>
         <paranamer.version>2.3</paranamer.version>
-        <presto.version>333</presto.version>
+        <presto.version>350</presto.version>
         <poi.version>4.1.2</poi.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <protobuf-java.version>2.5.0</protobuf-java.version>
