@@ -124,9 +124,10 @@ public class RangerBasePlugin {
 		File dir = new File(serviceHome);
 		String userDir = System.getProperty("user.dir");
 		File destDir = new File(userDir);
+		LOG.info("Copy ranger config file from " + dir + " to " + destDir);
 		IOFileFilter regexFileFilter = new RegexFileFilter("ranger-.+xml");
 		Collection<File> configFileList = FileUtils.listFiles(dir, regexFileFilter, TrueFileFilter.INSTANCE);
-
+		LOG.info("configFileList: " + configFileList);
 		for (File rangerConfigFile : configFileList) {
 			try {
 				FileUtils.copyFileToDirectory(rangerConfigFile, destDir);

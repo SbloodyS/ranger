@@ -5,8 +5,7 @@ Build Process
 
 2. On the root folder, please execute the following Maven command:
 
-	$ mvn clean compile package install assembly:assembly
-    $ mvn eclipse:eclipse
+	$ mvn clean compile package install assembly:assembly -Drat.skip=true -Dmaven.test.skip=true
 
 3. After the above build command execution, you should see the following TAR files in the target folder:
 
@@ -59,9 +58,9 @@ Installation Process
 
 4. Modify the install.properties file with appropriate variables
 
-5. If the module has setup.sh, 
+5. If the module has setup.sh,
 	Execute ./setup.sh
 
-   If the install.sh file does not exists, 
+   If the install.sh file does not exists,
 	Execute ./enable-<component>-plugin.sh
 
