@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,11 +19,17 @@
 
 package org.apache.ranger.plugin.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,6 +90,7 @@ public class RangerBasePlugin {
 
 	public void init() {
 		cleanup();
+		copyConfigFile();
 
 		RangerConfiguration.getInstance().addResourcesForServiceType(serviceType);
 		RangerConfiguration.getInstance().initAudit(appId);
@@ -104,6 +111,29 @@ public class RangerBasePlugin {
 
 		refresher = new PolicyRefresher(this, serviceType, appId, serviceName, admin, pollingIntervalMs, cacheDir);
 		refresher.startRefresher();
+	}
+
+	private void copyConfigFile() {
+		String serviceHome = "CDH_" + this.serviceType.toUpperCase() + "_HOME";
+
+		if ("CDH_HDFS_HOME".equals(serviceHome)) {
+			serviceHome = "CDH_HADOOP_HOME";
+		}
+
+		serviceHome = System.getenv(serviceHome);
+		File dir = new File(serviceHome);
+		String userDir = System.getProperty("user.dir");
+		File destDir = new File(userDir);
+		IOFileFilter regexFileFilter = new RegexFileFilter("ranger-.+xml");
+		Collection<File> configFileList = FileUtils.listFiles(dir, regexFileFilter, TrueFileFilter.INSTANCE);
+
+		for (File rangerConfigFile : configFileList) {
+			try {
+				FileUtils.copyFileToDirectory(rangerConfigFile, destDir);
+			} catch (IOException e) {
+				LOG.error("Copy ranger config file failed.", e);
+			}
+		}
 	}
 
 	public void setPolicies(ServicePolicies policies) {
@@ -265,7 +295,7 @@ public class RangerBasePlugin {
 			try {
 				@SuppressWarnings("unchecked")
 				Class<RangerAdminClient> adminClass = (Class<RangerAdminClient>)Class.forName(policySourceImpl);
-				
+
 				ret = adminClass.newInstance();
 			} catch (Exception excp) {
 				LOG.error("failed to instantiate policy source of type '" + policySourceImpl + "'. Will use policy source of type '" + RangerAdminRESTClient.class.getName() + "'", excp);
@@ -287,7 +317,7 @@ public class RangerBasePlugin {
 	private void auditGrantRevoke(GrantRevokeRequest request, String action, boolean isSuccess, RangerAccessResultProcessor resultProcessor) {
 		if(request != null && resultProcessor != null) {
 			RangerAccessRequestImpl accessRequest = new RangerAccessRequestImpl();
-	
+
 			accessRequest.setResource(new RangerAccessResourceImpl(request.getResource()));
 			accessRequest.setUser(request.getGrantor());
 			accessRequest.setAccessType(RangerPolicyEngine.ADMIN_ACCESS);
@@ -312,7 +342,7 @@ public class RangerBasePlugin {
 			}
 		}
 	}
-	
+
 	public boolean logErrorMessage(String message) {
 		LogHistory log = logHistoryList.get(message);
 		if (log == null) {
